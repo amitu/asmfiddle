@@ -69,6 +69,16 @@ func (c *cpu) Set(loc, val int) {
 	}
 
 	loc = loc / 4
+
+	if loc >= 1000 {
+		if loc >= 1000+len(c.ram) {
+			c.registers.SetEIP(3000)
+		}
+		c.ram[loc-1000] = val
+		return
+	}
+
+	c.special[loc] = val
 }
 
 func (c *cpu) Get(loc int) int {
@@ -296,8 +306,8 @@ func (c *cpu) loadfs() {
 	// eg 2000.txt contains "hello world", so write ram[2000:2012] = "hello world\0"
 }
 
-func (c *cpu) readOp() int {
-	op := c.Get(c.registers.EIP())
+func (c *cpu) readOp() OpCode {
+	op := OpCode(c.Get(c.registers.EIP()))
 	c.registers.IncrEIP(1)
 	return op
 }
@@ -327,12 +337,56 @@ func (c *cpu) Run() {
 			// execute
 			argr, argi := c.readTwo()
 			c.registers.Set(argr, argi)
+		case OpMovRM:
+			argr, argm := c.readTwo()
+			c.registers.Set(argr, c.Get(argm))
+		case OpMovRR:
+			r1, r2 := c.readTwo()
+			c.registers.Set(r1, c.registers.data[r2])
+		case OpMovMI:
+			argm, argi := c.readTwo()
+			c.Set(argm, argi)
+		case OpMovMM:
+			m1, m2 := c.readTwo()
+			c.Set(m1, c.Get(m2))
+		case OpMovMR:
+			m, r := c.readTwo()
+			c.Set(m, c.registers.data[r])
+
+		case OpPushI:
+			c.Push(c.readOne())
+		case OpPushM:
+			c.Push(c.Get(c.readOne()))
+		case OpPushR:
+			c.Push(c.registers.data[c.readOne()])
+
 		case OpPrnII:
 			argi := c.readOne()
 			c.console.Print(fmt.Sprintf("%d", argi))
+		case OpPrnIR:
+			r := c.readOne()
+			c.console.Print(fmt.Sprintf("%d", c.registers.data[r]))
+		case OpPrnIM:
+			m := c.readOne()
+			c.console.Print(fmt.Sprintf("%d", c.Get(m)))
 		case OpHalt:
 			return
 		}
+	}
+}
+
+type OpCode int
+
+func (o OpCode) String() string {
+	switch o {
+	case OpMovRI:
+		return "MovRI"
+	case OpPrnII:
+		return "PrnII"
+	case OpHalt:
+		return "Halt"
+	default:
+		return fmt.Sprintf("Unknown: %d", o)
 	}
 }
 
@@ -341,13 +395,15 @@ func (c *cpu) Run() {
 // M -> memory
 
 const (
-	OpMovRI int = iota
+	OpMovRI OpCode = iota
 	OpMovRR
 	OpMovRM
 	OpMovMI
 	OpMovMR
 	OpMovMM
-	OpPush
+	OpPushI
+	OpPushR
+	OpPushM
 	OpPop
 	OpPushf
 	OpPopf
