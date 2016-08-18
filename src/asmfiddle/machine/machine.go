@@ -1,6 +1,9 @@
 package machine
 
-import "asmfiddle"
+import (
+	"asmfiddle"
+	"fmt"
+)
 
 type ram []int
 
@@ -36,30 +39,49 @@ type cpu struct {
 }
 
 type registers struct {
+	data [17]int
+}
+
+func (r *registers) EIP() int {
+	return r.data[2]
+}
+
+func (r *registers) IncrEIP(incr int) {
+	r.data[2] += incr
+}
+
+func (r *registers) String() string {
+	return fmt.Sprintf(`
 	// Stack pointer, points to the top of the stack
-	ESP int
+	ESP = %d
 	// Base pointer, points to the base of the stack
-	EBP int
+	EBP = %d
 	// Instruction pointer, this is modified with the
 	// jump commands, never directly
-	EIP int
+	EIP = %d
 
-	EAX int
-	EBX int
-	ECX int
-	EDX int
+	EAX = %d
+	EBX = %d
+	ECX = %d
+	EDX = %d
 
-	ESI int
-	EDI int
+	ESI = %d
+	EDI = %d
 
-	R08 int
-	R09 int
-	R10 int
-	R11 int
-	R12 int
-	R13 int
-	R14 int
-	R15 int
+	R08 = %d
+	R09 = %d
+	R10 = %d
+	R11 = %d
+	R12 = %d
+	R13 = %d
+	R14 = %d
+	R15 = %d`, r.data[0], r.data[1], r.data[2], r.data[3], r.data[4], r.data[5],
+		r.data[6], r.data[7], r.data[8], r.data[9], r.data[10], r.data[11], r.data[12],
+		r.data[13], r.data[14], r.data[15], r.data[16])
+}
+
+func (r *registers) Set(i, val int) {
+	r.data[i] = val
 }
 
 type stack struct {
@@ -92,8 +114,8 @@ func NewCPU(
 	c.loadfs()
 
 	// register event handlers
-	c.keyboard.OnKey(asmfiddle.KeyboardHandler(c.onKey))
-	c.mouse.OnMouse(asmfiddle.MouseHandler(c.onMouse))
+	// c.keyboard.OnKey(asmfiddle.KeyboardHandler(c.onKey))
+	// c.mouse.OnMouse(asmfiddle.MouseHandler(c.onMouse))
 
 	return c
 }
@@ -106,8 +128,8 @@ func (c *cpu) onMouse(asmfiddle.MouseEvent) {
 
 }
 
-func (c *cpu) RAM() []byte {
-	return []byte(c.ram)
+func (c *cpu) RAM() []int {
+	return []int(c.ram)
 }
 
 func (c *cpu) Registers() asmfiddle.Registers {
@@ -127,14 +149,20 @@ func (c *cpu) loadfs() {
 
 func (c *cpu) Run() {
 	for {
-		op := OpCode(c.ram[c.registers.EIP]) // fetch
-		switch op {                          // decode
+		if c.registers.EIP() > len(c.ram) {
+			return
+		}
+
+		op := OpCode(c.ram[c.registers.EIP()]) // fetch
+		switch op {                            // decode
 		case OpMovRI:
 			// execute
-			arg0 := c.ram[c.registers.EIP+1]
-			arg1 := c.ram[c.registers.EIP+2]
-			c.registers.EIP += 3
-		default:
+			argr := c.ram[c.registers.EIP()+1]
+			argi := c.ram[c.registers.EIP()+2]
+			c.registers.IncrEIP(3)
+			c.registers.Set(argr, argi)
+		case OpHalt:
+			return
 		}
 	}
 }
@@ -182,4 +210,5 @@ const (
 	OpJle
 	OpPrn
 	OpInt
+	OpHalt
 )

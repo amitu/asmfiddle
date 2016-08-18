@@ -72,7 +72,7 @@ type Registers interface {
 
 type Machine interface {
 	Registers() Registers
-	RAM() []byte
+	RAM() []int
 	Stack() (stack []int, pos int)
 	Run()
 }
