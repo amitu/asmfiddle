@@ -377,7 +377,7 @@ func (c *cpu) Run() {
 			m := c.readOne()
 			c.Set(m, c.Get(m)-1)
 
-		case OpAddRI:
+		case OpAddRI: // TODO: overflow
 			argr, argi := c.readTwo()
 			c.registers.Set(argr, argi+c.registers.data[argr])
 		case OpAddRR:
@@ -396,7 +396,7 @@ func (c *cpu) Run() {
 			m1, m2 := c.readTwo()
 			c.Set(m1, c.Get(m2)+c.Get(m1))
 
-		case OpSubRI:
+		case OpSubRI: // TODO: overflow
 			argr, argi := c.readTwo()
 			c.registers.Set(argr, c.registers.data[argr]-argi)
 		case OpSubRR:
@@ -413,7 +413,45 @@ func (c *cpu) Run() {
 			c.Set(m, c.Get(m)-c.registers.data[r])
 		case OpSubMM:
 			m1, m2 := c.readTwo()
-			c.Set(m1, c.Get(m1)+c.Get(m2))
+			c.Set(m1, c.Get(m1)-c.Get(m2))
+
+		case OpMulRI: // TODO: overflow
+			argr, argi := c.readTwo()
+			c.registers.Set(argr, argi*c.registers.data[argr])
+		case OpMulRR:
+			r1, r2 := c.readTwo()
+			c.registers.Set(r1, c.registers.data[r1]*c.registers.data[r2])
+		case OpMulRM:
+			argr, argm := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]*c.Get(argm))
+		case OpMulMI:
+			argm, argi := c.readTwo()
+			c.Set(argm, c.Get(argm)*argi)
+		case OpMulMR:
+			m, r := c.readTwo()
+			c.Set(m, c.registers.data[r]*c.Get(m))
+		case OpMulMM:
+			m1, m2 := c.readTwo()
+			c.Set(m1, c.Get(m2)*c.Get(m1))
+
+		case OpDivRI: // TODO: overflow etc
+			argr, argi := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]/argi)
+		case OpDivRR:
+			r1, r2 := c.readTwo()
+			c.registers.Set(r1, c.registers.data[r1]/c.registers.data[r2])
+		case OpDivRM:
+			argr, argm := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]/c.Get(argm))
+		case OpDivMI:
+			argm, argi := c.readTwo()
+			c.Set(argm, c.Get(argm)/argi)
+		case OpDivMR:
+			m, r := c.readTwo()
+			c.Set(m, c.Get(m)/c.registers.data[r])
+		case OpDivMM:
+			m1, m2 := c.readTwo()
+			c.Set(m1, c.Get(m1)/c.Get(m2))
 
 		case OpPrnII:
 			argi := c.readOne()
@@ -468,9 +506,7 @@ const (
 	OpCallM
 	OpCallR
 
-	OpRetI
-	OpRetM
-	OpRetR
+	OpRet
 
 	OpIncR
 	OpIncM
@@ -499,6 +535,7 @@ const (
 	OpMulMR
 	OpMulMM
 
+	// Divides arg0 by arg1, storing the quotient in arg0
 	OpDivRI
 	OpDivRR
 	OpDivRM
@@ -506,6 +543,8 @@ const (
 	OpDivMM
 	OpDivMR
 
+	// Same as the '%' (modulus) operator in C. Calculates arg0 mod arg1 and
+	// stores the result in the remainder register.
 	OpModRI
 	OpModRM
 	OpModRR
@@ -513,19 +552,12 @@ const (
 	OpModMR
 	OpModMM
 
-	OpRemRI
-	OpRemRM
-	OpRemRR
-	OpRemMI
-	OpRemMR
-	OpRemMM
+	// Retrieves the value stored in the remainder register, storing it in arg
+	OpRemR
+	OpRemM
 
-	OpNotRI
-	OpNotRM
-	OpNotRR
-	OpNotMI
-	OpNotMR
-	OpNotMM
+	OpNotR
+	OpNotM
 
 	OpXorRI
 	OpXorRM
