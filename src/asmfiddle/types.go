@@ -22,7 +22,7 @@ type FileSystem interface {
 }
 
 type LCD interface {
-	Write([]byte)
+	Write([]int)
 }
 
 type KeyCode int

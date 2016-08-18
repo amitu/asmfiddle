@@ -13,7 +13,7 @@
 //         0: Control
 //            0: on or off
 //         2412: Code
-//  	    2416: Down
+//  	       2416: Down
 //
 // 0002420 Mouse:
 // 	    0: Control
@@ -47,29 +47,46 @@ package machine
 
 import (
 	"asmfiddle"
+
 	"fmt"
+	"time"
 )
 
 type ram []int
 
-func (r ram) Set(pos, val int) {
-	// where are our peripherals?
-	// keyboard: 1000
-	//      on off | int address | context
-	//Set(1000, 1) // activate keyboard
-	//Set(1004, 1) // use interrupt 1 for keyboard events
-	//Set(1008, 1)
+func (c *cpu) Set(loc, val int) {
+	if loc%4 != 0 {
+		// set some flag to indicate what has happened
+		c.registers.SetEIP(3000)
+	}
 
-	// mouse 1020
-	//       on off | int address | context
-	//Set(1020, 1) // activate mouse
-	//Set(1024, 2) // use interrupt 1 for mouse events
-	//Set(1028, 2)
-	// how many interrupts?
+	if loc == 2412 || loc == 2416 || loc == 2424 || loc == 2428 || loc == 2432 || loc == 2440 {
+		c.registers.SetEIP(3000)
+	}
+
+	loc = loc / 4
 }
 
-func (r ram) Get(int) int {
-	return 0
+func (c *cpu) Get(loc int) int {
+	if loc%4 != 0 {
+		// set some flag to indicate what has happened
+		c.registers.SetEIP(3000)
+	}
+
+	loc = loc / 4
+
+	if loc == 2444 {
+		return int((time.Now().UnixNano() / 1000000) & 0xFFFFFFFF)
+	}
+
+	if loc >= 1000 {
+		if loc >= 1000+len(c.ram) {
+			c.registers.SetEIP(3000)
+		}
+		return c.ram[loc-1000]
+	}
+
+	return c.special[loc]
 }
 
 type cpu struct {
@@ -82,18 +99,92 @@ type cpu struct {
 	ram       ram
 	registers *registers
 	stack     *stack
+
+	special [756]int
 }
 
 type registers struct {
-	data [17]int
+	data [18]int
+}
+
+func (r *registers) ESP() int {
+	return r.data[0]
+}
+
+func (r *registers) EBP() int {
+	return r.data[1]
 }
 
 func (r *registers) EIP() int {
 	return r.data[2]
 }
 
+func (r *registers) EAX() int {
+	return r.data[3]
+}
+
+func (r *registers) EBX() int {
+	return r.data[4]
+}
+
+func (r *registers) ECX() int {
+	return r.data[5]
+}
+
+func (r *registers) EDX() int {
+	return r.data[6]
+}
+
+func (r *registers) ESI() int {
+	return r.data[7]
+}
+
+func (r *registers) EDI() int {
+	return r.data[8]
+}
+
+func (r *registers) R08() int {
+	return r.data[9]
+}
+
+func (r *registers) R09() int {
+	return r.data[10]
+}
+
+func (r *registers) R10() int {
+	return r.data[11]
+}
+
+func (r *registers) R11() int {
+	return r.data[12]
+}
+
+func (r *registers) R12() int {
+	return r.data[13]
+}
+
+func (r *registers) R13() int {
+	return r.data[14]
+}
+
+func (r *registers) R14() int {
+	return r.data[15]
+}
+
+func (r *registers) R15() int {
+	return r.data[16]
+}
+
+func (r *registers) FLAGS() int {
+	return r.data[17]
+}
+
+func (r *registers) SetEIP(val int) {
+	r.data[2] = val
+}
+
 func (r *registers) IncrEIP(incr int) {
-	r.data[2] += incr
+	r.data[2] += incr * 4
 }
 
 func (r *registers) String() string {
@@ -121,9 +212,11 @@ func (r *registers) String() string {
 	R12 = %d
 	R13 = %d
 	R14 = %d
-	R15 = %d`, r.data[0], r.data[1], r.data[2], r.data[3], r.data[4], r.data[5],
+	R15 = %d
+
+	FLAGS = %b`, r.data[0], r.data[1], r.data[2], r.data[3], r.data[4], r.data[5],
 		r.data[6], r.data[7], r.data[8], r.data[9], r.data[10], r.data[11], r.data[12],
-		r.data[13], r.data[14], r.data[15], r.data[16])
+		r.data[13], r.data[14], r.data[15], r.data[16], r.data[17])
 }
 
 func (r *registers) Set(i, val int) {
@@ -160,6 +253,7 @@ func NewCPU(
 		stack:     &stack{},
 	}
 	c.loadfs()
+	c.registers.SetEIP(4000) // main
 
 	// register event handlers
 	// c.keyboard.OnKey(asmfiddle.KeyboardHandler(c.onKey))
@@ -195,23 +289,39 @@ func (c *cpu) loadfs() {
 	// eg 2000.txt contains "hello world", so write ram[2000:2012] = "hello world\0"
 }
 
+func (c *cpu) readOp() OpCode {
+	op := OpCode(c.Get(c.registers.EIP()))
+	c.registers.IncrEIP(1)
+	return op
+}
+
+func (c *cpu) readOne() int {
+	one := c.Get(c.registers.EIP())
+	c.registers.IncrEIP(1)
+	return one
+}
+
+func (c *cpu) readTwo() (int, int) {
+	one := c.Get(c.registers.EIP())
+	two := c.Get(c.registers.EIP() + 4)
+	c.registers.IncrEIP(2)
+	return one, two
+}
+
 func (c *cpu) Run() {
 	for {
-		if c.registers.EIP() > len(c.ram) {
+		if c.registers.EIP() > 4000+len(c.ram)*4 {
 			return
 		}
 
-		op := OpCode(c.ram[c.registers.EIP()]) // fetch
-		switch op {                            // decode
+		op := c.readOp() // fetch
+		switch op {      // decode
 		case OpMovRI:
 			// execute
-			argr := c.ram[c.registers.EIP()+1]
-			argi := c.ram[c.registers.EIP()+2]
-			c.registers.IncrEIP(3)
+			argr, argi := c.readTwo()
 			c.registers.Set(argr, argi)
 		case OpPrnII:
-			argi := c.ram[c.registers.EIP()+1]
-			c.registers.IncrEIP(2)
+			argi := c.readOne()
 			c.console.Print(fmt.Sprintf("%d", argi))
 		case OpHalt:
 			return

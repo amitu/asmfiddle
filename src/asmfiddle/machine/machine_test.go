@@ -21,7 +21,8 @@ func TestCpu_OpMovRI(t *testing.T) {
 	c.ram = ram([]int{int(OpMovRI), 4, 42, int(OpHalt)})
 	c.Run()
 
-	if c.registers.data[4] != 42 {
+	t.Log(c.registers)
+	if c.registers.EBX() != 42 {
 		t.Fatal("test failed")
 	}
 }
