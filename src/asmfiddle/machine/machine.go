@@ -396,6 +396,25 @@ func (c *cpu) Run() {
 			m1, m2 := c.readTwo()
 			c.Set(m1, c.Get(m2)+c.Get(m1))
 
+		case OpSubRI:
+			argr, argi := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]-argi)
+		case OpSubRR:
+			r1, r2 := c.readTwo()
+			c.registers.Set(r1, c.registers.data[r1]-c.registers.data[r2])
+		case OpSubRM:
+			argr, argm := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]-c.Get(argm))
+		case OpSubMI:
+			argm, argi := c.readTwo()
+			c.Set(argm, c.Get(argm)-argi)
+		case OpSubMR:
+			m, r := c.readTwo()
+			c.Set(m, c.Get(m)-c.registers.data[r])
+		case OpSubMM:
+			m1, m2 := c.readTwo()
+			c.Set(m1, c.Get(m1)+c.Get(m2))
+
 		case OpPrnII:
 			argi := c.readOne()
 			c.console.Print(fmt.Sprintf("%d", argi))
