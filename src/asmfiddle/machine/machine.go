@@ -360,6 +360,42 @@ func (c *cpu) Run() {
 		case OpPushR:
 			c.Push(c.registers.data[c.readOne()])
 
+		case OpPopR:
+			c.registers.data[c.readOne()] = c.Pop()
+		case OpPopM:
+			c.Set(c.readOne(), c.Pop())
+
+		case OpIncR:
+			c.registers.data[c.readOne()]++
+		case OpIncM:
+			m := c.readOne()
+			c.Set(m, c.Get(m)+1)
+
+		case OpDecR:
+			c.registers.data[c.readOne()]--
+		case OpDecM:
+			m := c.readOne()
+			c.Set(m, c.Get(m)-1)
+
+		case OpAddRI:
+			argr, argi := c.readTwo()
+			c.registers.Set(argr, argi+c.registers.data[argr])
+		case OpAddRR:
+			r1, r2 := c.readTwo()
+			c.registers.Set(r1, c.registers.data[r1]+c.registers.data[r2])
+		case OpAddRM:
+			argr, argm := c.readTwo()
+			c.registers.Set(argr, c.registers.data[argr]+c.Get(argm))
+		case OpAddMI:
+			argm, argi := c.readTwo()
+			c.Set(argm, c.Get(argm)+argi)
+		case OpAddMR:
+			m, r := c.readTwo()
+			c.Set(m, c.registers.data[r]+c.Get(m))
+		case OpAddMM:
+			m1, m2 := c.readTwo()
+			c.Set(m1, c.Get(m2)+c.Get(m1))
+
 		case OpPrnII:
 			argi := c.readOne()
 			c.console.Print(fmt.Sprintf("%d", argi))
@@ -401,42 +437,160 @@ const (
 	OpMovMI
 	OpMovMR
 	OpMovMM
+
 	OpPushI
 	OpPushR
 	OpPushM
-	OpPop
-	OpPushf
-	OpPopf
-	OpCall
-	OpRet
-	OpInc
-	OpDec
-	OpAdd
-	OpSub
-	OpMul
-	OpDiv
-	OpMod
-	OpRem
-	OpNot
-	OpXor
-	OpOr
-	OpAnd
-	OpShl
-	OpShr
-	OpCmp
-	OpJmp
-	OpJE
-	OpJne
-	OpJg
-	OpJge
-	OpJl
-	OpJle
+
+	OpPopR
+	OpPopM
+
+	OpCallI
+	OpCallM
+	OpCallR
+
+	OpRetI
+	OpRetM
+	OpRetR
+
+	OpIncR
+	OpIncM
+
+	OpDecR
+	OpDecM
+
+	OpAddRI
+	OpAddRR
+	OpAddRM
+	OpAddMI
+	OpAddMR
+	OpAddMM
+
+	OpSubRI
+	OpSubRM
+	OpSubRR
+	OpSubMI
+	OpSubMM
+	OpSubMR
+
+	OpMulRI
+	OpMulRR
+	OpMulRM
+	OpMulMI
+	OpMulMR
+	OpMulMM
+
+	OpDivRI
+	OpDivRR
+	OpDivRM
+	OpDivMI
+	OpDivMM
+	OpDivMR
+
+	OpModRI
+	OpModRM
+	OpModRR
+	OpModMI
+	OpModMR
+	OpModMM
+
+	OpRemRI
+	OpRemRM
+	OpRemRR
+	OpRemMI
+	OpRemMR
+	OpRemMM
+
+	OpNotRI
+	OpNotRM
+	OpNotRR
+	OpNotMI
+	OpNotMR
+	OpNotMM
+
+	OpXorRI
+	OpXorRM
+	OpXorRR
+	OpXorMI
+	OpXorMR
+	OpXorMM
+
+	OpOrRI
+	OpOrRM
+	OpOrRR
+	OpOrMI
+	OpOrMM
+	OpOrMR
+
+	OpAndRI
+	OpAndRM
+	OpAndRR
+	OpAndMI
+	OpAndMM
+	OpAndMR
+
+	OpShlRI
+	OpShlRR
+	OpShlRM
+	OpShlMI
+	OpShlMR
+	OpShlMM
+
+	OpShrRI
+	OpShrRR
+	OpShrRM
+	OpShrMI
+	OpShrMR
+	OpShrMM
+
+	OpCmpII
+	OpCmpIR
+	OpCmpIM
+	OpCmpRI
+	OpCmpRR
+	OpCmpRM
+	OpCmpMI
+	OpCmpMR
+	OpCmpMM
+
+	OpJmpI
+	OpJmpR
+	OpJmpM
+
+	OpJEI
+	OpJER
+	OpJEM
+
+	OpJneI
+	OpJneR
+	OpJneM
+
+	OpJgI
+	OpJgR
+	OpJgM
+
+	OpJgeI
+	OpJgeR
+	OpJgeM
+
+	OpJlI
+	OpJlR
+	OpJlM
+
+	OpJleI
+	OpJleR
+	OpJleM
+
 	OpPrnII
 	OpPrnIR
 	OpPrnIM
 	OpPrnSI
 	OpPrnSR
 	OpPrnSM
-	OpInt
+
+	OpIntI
+	OpIntM
+	OpIntR
+
 	OpHalt
 )
