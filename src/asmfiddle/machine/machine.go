@@ -1,3 +1,48 @@
+// Memory Layout
+//
+// Peripherals
+// 0000000 LCD  [320 x 240]
+//         0: Control
+//            0: on or off
+//            1: clear the LCD
+//            2: clear color
+//            3: show test message on LCD
+//         4-2404: Video Memory
+//
+// 0002408 Keyboard:
+//         0: Control
+//            0: on or off
+//         2412: Code
+//  	    2416: Down
+//
+// 0002420 Mouse:
+// 	    0: Control
+// 	    	   0: on or off
+// 	    	2424: pos x
+// 	    	2428: pos y
+// 	    	2432: Mask
+//
+// 2436: Timer
+//         0: Control
+//             0: timer 0 is active
+//             1: timer 1 is active
+//             2: timer 2 is active
+//             3: timer 3 is active
+//          2440: current time
+//          2444: timer 0 deadline
+//          2448: timer 1 deadline
+//          2452: timer 2 deadline
+//          2456: timer 3 deadline
+//
+// 3000: Interrupt: invalid memory access
+// 3004: Interrupt: Keyboard Interrupt
+// 3008: Interrupt: mouse
+// 3012: timer 0
+// 3016: timer 1
+// 3020: timer 2
+// 3024: timer 3
+//
+// 4000: main program start
 package machine
 
 import (
@@ -136,7 +181,7 @@ func (c *cpu) RAM() []int {
 }
 
 func (c *cpu) Registers() asmfiddle.Registers {
-	return nil
+	return c.registers
 }
 
 func (c *cpu) Stack() ([]int, int) {
