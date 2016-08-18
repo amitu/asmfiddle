@@ -18,7 +18,10 @@ func TestCpu_OpMovRI(t *testing.T) {
 		t.Fatal("invalid")
 	}
 
-	c.ram = ram([]int{int(OpMovRI), 4, 42, int(OpHalt)})
+	c.ram = ram([]int{
+		OpMovRI, 4, 42,
+		OpHalt,
+	})
 	c.Run()
 
 	if c.registers.EBX() != 42 {
@@ -35,7 +38,10 @@ func TestCpu_OpPrnII(t *testing.T) {
 		t.Fatal("invalid")
 	}
 
-	c.ram = ram([]int{int(OpPrnII), 42, int(OpHalt)})
+	c.ram = ram([]int{
+		OpPrnII, 42,
+		OpHalt,
+	})
 	c.Run()
 
 	if console.last != "42" {

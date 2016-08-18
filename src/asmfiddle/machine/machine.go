@@ -41,6 +41,10 @@
 // 3016: timer 1
 // 3020: timer 2
 // 3024: timer 3
+// 3028: user defined int 0
+// 3032: user defined int 1
+// 3036: user defined int 2
+// 3040: user defined int3
 //
 // 4000: main program start
 package machine
@@ -100,7 +104,7 @@ type cpu struct {
 	registers *registers
 	stack     []int
 
-	special [756]int
+	special [760]int
 }
 
 type registers struct {
@@ -292,8 +296,8 @@ func (c *cpu) loadfs() {
 	// eg 2000.txt contains "hello world", so write ram[2000:2012] = "hello world\0"
 }
 
-func (c *cpu) readOp() OpCode {
-	op := OpCode(c.Get(c.registers.EIP()))
+func (c *cpu) readOp() int {
+	op := c.Get(c.registers.EIP())
 	c.registers.IncrEIP(1)
 	return op
 }
@@ -332,14 +336,12 @@ func (c *cpu) Run() {
 	}
 }
 
-type OpCode int
-
 // I -> immediate
 // R -> register
 // M -> memory
 
 const (
-	OpMovRI OpCode = iota
+	OpMovRI int = iota
 	OpMovRR
 	OpMovRM
 	OpMovMI
