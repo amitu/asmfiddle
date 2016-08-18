@@ -67,6 +67,10 @@ type Mouse interface {
 	OnMouse(MouseHandler)
 }
 
+type Console interface {
+	Print(string)
+}
+
 type Registers interface {
 }
 

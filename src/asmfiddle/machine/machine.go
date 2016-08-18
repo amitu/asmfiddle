@@ -31,6 +31,7 @@ type cpu struct {
 	keyboard asmfiddle.Keyboard
 	mouse    asmfiddle.Mouse
 	lcd      asmfiddle.LCD
+	console  asmfiddle.Console
 	fs       asmfiddle.FileSystem
 
 	ram       ram
@@ -100,13 +101,15 @@ func (s *stack) Pop() int {
 
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,
-	fs asmfiddle.FileSystem, size int,
+	fs asmfiddle.FileSystem, console asmfiddle.Console, size int,
 ) asmfiddle.Machine {
 	c := &cpu{
-		keyboard:  keyboard,
-		mouse:     mouse,
-		lcd:       lcd,
-		fs:        fs,
+		keyboard: keyboard,
+		mouse:    mouse,
+		lcd:      lcd,
+		fs:       fs,
+		console:  console,
+
 		ram:       make([]int, size),
 		registers: &registers{},
 		stack:     &stack{},
@@ -161,6 +164,10 @@ func (c *cpu) Run() {
 			argi := c.ram[c.registers.EIP()+2]
 			c.registers.IncrEIP(3)
 			c.registers.Set(argr, argi)
+		case OpPrnII:
+			argi := c.ram[c.registers.EIP()+1]
+			c.registers.IncrEIP(2)
+			c.console.Print(fmt.Sprintf("%d", argi))
 		case OpHalt:
 			return
 		}
@@ -208,7 +215,12 @@ const (
 	OpJge
 	OpJl
 	OpJle
-	OpPrn
+	OpPrnII
+	OpPrnIR
+	OpPrnIM
+	OpPrnSI
+	OpPrnSR
+	OpPrnSM
 	OpInt
 	OpHalt
 )
