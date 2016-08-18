@@ -98,7 +98,7 @@ type cpu struct {
 
 	ram       ram
 	registers *registers
-	stack     *stack
+	stack     []int
 
 	special [756]int
 }
@@ -223,23 +223,20 @@ func (r *registers) Set(i, val int) {
 	r.data[i] = val
 }
 
-type stack struct {
-	sp    int
-	stack []int
+func (c *cpu) Push(val int) {
+	c.stack[c.registers.data[0]] = val
+	c.registers.data[0] += 1
 }
 
-func (s *stack) Push(val int) {
-	s.stack = append(s.stack, val)
-	s.sp += 1
-}
-
-func (s *stack) Pop() int {
-	return s.stack[s.sp]
+func (c *cpu) Pop() int {
+	c.registers.data[0] -= 1
+	return c.stack[c.registers.data[0]]
 }
 
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,
-	fs asmfiddle.FileSystem, console asmfiddle.Console, size int,
+	fs asmfiddle.FileSystem, console asmfiddle.Console,
+	ramsize int, stacksize int,
 ) asmfiddle.Machine {
 	c := &cpu{
 		keyboard: keyboard,
@@ -248,9 +245,9 @@ func NewCPU(
 		fs:       fs,
 		console:  console,
 
-		ram:       make([]int, size),
+		ram:       make([]int, ramsize),
 		registers: &registers{},
-		stack:     &stack{},
+		stack:     make([]int, stacksize),
 	}
 	c.loadfs()
 	c.registers.SetEIP(4000) // main
@@ -260,6 +257,12 @@ func NewCPU(
 	// c.mouse.OnMouse(asmfiddle.MouseHandler(c.onMouse))
 
 	return c
+}
+
+func (c *cpu) stackDump() string {
+	return fmt.Sprintf(`
+		stack: %v
+		pointer: %d`, c.stack, c.registers.ESP())
 }
 
 func (c *cpu) onKey(asmfiddle.KeyEvent) {
