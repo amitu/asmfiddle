@@ -1,4 +1,4 @@
-// Memory Layout
+// Memory Layout (peripherals etc)
 //
 // Peripherals
 // 0000000 LCD  [320 x 240]
@@ -177,6 +177,10 @@ type cpu struct {
 	stack     []int
 
 	special [760]int
+}
+
+func (c *cpu) SetRAM(data []int) {
+	c.ram = data
 }
 
 type registers struct {
@@ -712,7 +716,7 @@ const (
 	OpPauseRZ
 	OpPauseRNz
 	OpPauseMZ
-	OpPauseRNz
+	OpPauseMNz
 
 	// terminate the program
 	OpHalt

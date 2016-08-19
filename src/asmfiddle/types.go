@@ -77,6 +77,11 @@ type Registers interface {
 type Machine interface {
 	Registers() Registers
 	RAM() []int
+	SetRAM([]int)
 	Stack() (stack []int, pos int)
 	Run()
+}
+
+type Assembler interface {
+	Assemble(string) (string, error)
 }

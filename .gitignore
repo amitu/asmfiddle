@@ -23,3 +23,6 @@ _testmain.go
 *.test
 *.prof
 *.idea
+vendor/src/github.com/gopherjs/gopherjs
+scss/foundation-sites
+.doit.db
