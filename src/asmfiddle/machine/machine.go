@@ -507,7 +507,9 @@ func (o OpCode) String() string {
 // M -> memory
 
 const (
-	OpMovRI OpCode = iota
+	// Invalid should never come in code
+	OpInv OpCode = iota
+	OpMovRI
 	OpMovRR
 	OpMovRM
 	OpMovMI
@@ -662,5 +664,13 @@ const (
 	OpIntM
 	OpIntR
 
+	// pause the program till some reg/memory is zero/nonzero
+	// only handle interrupts
+	OpPauseRZ
+	OpPauseRNz
+	OpPauseMZ
+	OpPauseRNz
+
+	// terminate the program
 	OpHalt
 )
