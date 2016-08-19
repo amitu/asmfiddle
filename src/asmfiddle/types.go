@@ -26,7 +26,7 @@ type FileSystem interface {
 }
 
 type LCD interface {
-	Write([]byte)
+	Write([]int)
 }
 
 type KeyCode int
@@ -71,12 +71,21 @@ type Mouse interface {
 	OnMouse(MouseHandler)
 }
 
+type Console interface {
+	Print(string)
+}
+
 type Registers interface {
 }
 
 type Machine interface {
 	Registers() Registers
 	RAM() []int
+	SetRAM([]int)
 	Stack() (stack []int, pos int)
 	Run()
+}
+
+type Assembler interface {
+	Assemble(string) (string, error)
 }
