@@ -6,7 +6,7 @@ import (
 )
 
 func TestCpu_Run(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, 20)
+	cpum := NewCPU(nil, nil, nil, nil, nil, 20, 0)
 	c, ok := cpum.(*cpu)
 	if !ok {
 		t.Fatal("invalid")
