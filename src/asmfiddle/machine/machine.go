@@ -7,6 +7,23 @@ import (
 
 type ram []int
 
+// Utilities
+func Int2Bytes(int_val []int) []byte {
+	data := make([]byte, 0)
+	for _, int_val := range int_val {
+		b0 := int_val & 0xFF;
+		b1 := int_val > 8 & 0xFF
+		b2 := int_val >> 16 & 0xFF
+		b3 := int_val >> 24 & 0xFF
+		data = append(data, b0, b1, b2, b3)
+	}
+	return data
+}
+
+func Bytes2Ints(data []byte) []int {
+	return
+}
+
 func (r ram) Set(pos, val int) {
 	// where are our peripherals?
 	// keyboard: 1000
@@ -100,7 +117,7 @@ func (s *stack) Pop() int {
 
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,
-	fs asmfiddle.FileSystem, size int,
+	fs asmfiddle.ROFileSystem, size int,
 ) asmfiddle.Machine {
 	c := &cpu{
 		keyboard:  keyboard,
@@ -145,6 +162,7 @@ func (c *cpu) loadfs() {
 	// load the content of that file in c.ram.
 
 	// eg 2000.txt contains "hello world", so write ram[2000:2012] = "hello world\0"
+
 }
 
 func (c *cpu) Run() {

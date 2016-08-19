@@ -1,8 +1,12 @@
 package machine
 
-import "testing"
+import (
+	"testing"
+	"asmfiddle"
+)
 
 func TestCpu_Run(t *testing.T) {
+	// fs := NewFakeFS(map[string][]byte{"000000.bin": asmfiddle.Int2Bytes([]int{int(OpMovRI), 4, 42, int(OpHalt)}))
 	cpum := NewCPU(nil, nil, nil, nil, 20)
 	c, ok := cpum.(*cpu)
 	if !ok {
