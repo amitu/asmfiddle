@@ -34,6 +34,24 @@
 //          2452: timer 2 deadline
 //          2456: timer 3 deadline
 //
+// 2460: LEDs, 32 LEDs
+// 2464: Input PINs (pins will be connected to switches)
+//         0: Control
+//            0: pin 0 toggle will interrupt
+//            1: pin 1 toggle will interrupt
+//            ...
+//
+//         2468: Pin High: if this is high then we are interested when
+//                         when pin goes up, else down
+//
+//         2472: Pin Toggle: if this is 0 then both on and off will
+//                         trigger interrupt, else just high or low
+//
+//         2476: pin state
+//            0: pin 0
+//            1: pin 1
+//            ...
+//
 // 3000: Interrupt: invalid memory access
 // 3004: Interrupt: Keyboard Interrupt
 // 3008: Interrupt: mouse
@@ -45,6 +63,7 @@
 // 3032: user defined int 1
 // 3036: user defined int 2
 // 3040: user defined int3
+// 3044: pin interrupt
 //
 // 4000: main program start
 package machine
