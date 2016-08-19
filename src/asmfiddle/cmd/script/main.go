@@ -21,7 +21,7 @@ func main() {
 	//leds := jsui.NewLEDs()
 	//switches := jsui.NewSwitches()
 
-	m := machine.NewCPU(nil, nil, lcd, nil, console, 20, 0)
+	m := machine.NewCPU(nil, nil, lcd, nil, console, nil, nil, 20, 0)
 	m.SetRAM([]int{
 		int(machine.OpPrnII), 42,
 		int(machine.OpHalt),

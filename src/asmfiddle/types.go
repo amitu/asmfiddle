@@ -74,6 +74,16 @@ type Console interface {
 type Registers interface {
 }
 
+type LEDBank interface {
+	Set(int)
+}
+
+type SwitchHandler func(int)
+type SwitchBank interface {
+	Get(int)
+	OnSwitch(SwitchHandler)
+}
+
 type Machine interface {
 	Registers() Registers
 	RAM() []int
