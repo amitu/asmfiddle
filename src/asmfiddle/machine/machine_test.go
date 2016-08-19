@@ -6,7 +6,7 @@ import (
 )
 
 func TestCpu_Run(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 20, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 20, 0)
 	c, ok := cpum.(*cpu)
 	if !ok {
 		t.Fatal("invalid")
@@ -30,7 +30,7 @@ func (c *FakeConsole) Print(msg string) {
 }
 
 func TestCpu_OpMovRI(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 20, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 20, 0)
 	c, ok := cpum.(*cpu)
 	if !ok {
 		t.Fatal("invalid")
@@ -48,7 +48,7 @@ func TestCpu_OpMovRI(t *testing.T) {
 }
 
 func TestCpu_OpMovRM(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 0)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpMovRM), 4, 4000,
@@ -62,7 +62,7 @@ func TestCpu_OpMovRM(t *testing.T) {
 }
 
 func TestCpu_OpMovRR(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 0)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpMovRI), 4, 42,
@@ -77,7 +77,7 @@ func TestCpu_OpMovRR(t *testing.T) {
 }
 
 func TestCpu_OpMovMI(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 0)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpMovMI), 4000, 42,
@@ -91,7 +91,7 @@ func TestCpu_OpMovMI(t *testing.T) {
 }
 
 func TestCpu_OpMovMM(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 0)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpMovMM), 4000, 4004,
@@ -105,7 +105,7 @@ func TestCpu_OpMovMM(t *testing.T) {
 }
 
 func TestCpu_OpMovMR(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 0)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 0)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpMovMR), 4000, 2,
@@ -119,7 +119,7 @@ func TestCpu_OpMovMR(t *testing.T) {
 }
 
 func TestCpu_OpPushI(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 30, 1)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 30, 1)
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
 		int(OpPushI), 42,
@@ -134,7 +134,7 @@ func TestCpu_OpPushI(t *testing.T) {
 
 func TestCpu_OpPrnII(t *testing.T) {
 	console := &FakeConsole{}
-	cpum := NewCPU(nil, nil, nil, nil, console, 20, 1)
+	cpum := NewCPU(nil, nil, nil, nil, console, nil, nil, 20, 1)
 
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
@@ -150,7 +150,7 @@ func TestCpu_OpPrnII(t *testing.T) {
 
 func TestCpu_OpPrnIR(t *testing.T) {
 	console := &FakeConsole{}
-	cpum := NewCPU(nil, nil, nil, nil, console, 20, 1)
+	cpum := NewCPU(nil, nil, nil, nil, console, nil, nil, 20, 1)
 
 	c, _ := cpum.(*cpu)
 	c.ram = ram([]int{
@@ -166,7 +166,7 @@ func TestCpu_OpPrnIR(t *testing.T) {
 
 func TestCpu_OpPrnIM(t *testing.T) {
 	console := &FakeConsole{}
-	cpum := NewCPU(nil, nil, nil, nil, console, 20, 0)
+	cpum := NewCPU(nil, nil, nil, nil, console, nil, nil, 20, 0)
 
 	c, ok := cpum.(*cpu)
 	if !ok {
@@ -185,7 +185,7 @@ func TestCpu_OpPrnIM(t *testing.T) {
 }
 
 func TestCpu_Stack(t *testing.T) {
-	cpum := NewCPU(nil, nil, nil, nil, nil, 20, 4)
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 20, 4)
 	c, _ := cpum.(*cpu)
 
 	c.Push(10)
@@ -211,4 +211,3 @@ func TestCpu_Stack(t *testing.T) {
 		t.Fatal("Pop failed")
 	}
 }
-

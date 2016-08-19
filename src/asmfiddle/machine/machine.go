@@ -193,6 +193,8 @@ type cpu struct {
 	lcd      asmfiddle.LCD
 	console  asmfiddle.Console
 	fs       asmfiddle.FileSystem
+	leds     asmfiddle.LEDBank
+	switches asmfiddle.SwitchBank
 
 	ram       ram
 	registers *registers
@@ -352,8 +354,8 @@ func (s *stack) Pop() int {
 
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,
-	fs asmfiddle.FileSystem, console asmfiddle.Console,
-	ramsize int, stacksize int,
+	fs asmfiddle.FileSystem, console asmfiddle.Console, leds asmfiddle.LEDBank,
+	switches asmfiddle.SwitchBank, ramsize int, stacksize int,
 ) asmfiddle.Machine {
 	c := &cpu{
 		keyboard: keyboard,
@@ -361,6 +363,8 @@ func NewCPU(
 		lcd:      lcd,
 		fs:       fs,
 		console:  console,
+		leds:     leds,
+		switches: switches,
 
 		ram:       make([]int, ramsize),
 		registers: &registers{},
