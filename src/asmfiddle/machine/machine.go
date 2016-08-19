@@ -352,6 +352,40 @@ func (s *stack) Pop() int {
 	return s.stack[s.sp]
 }
 
+
+// Utilities
+func Int2Bytes(int_val []int) []byte {
+	data := make([]byte, 0)
+	for _, int_val := range int_val {
+		b0 := byte(int_val & 0xFFF);
+		b1 := byte(int_val >> 8 & 0xFFF)
+		b2 := byte(int_val >> 16 & 0xFFF)
+		b3 := byte(int_val >> 24 & 0xFFF)
+		data = append(data, b0, b1, b2, b3)
+	}
+	return data
+}
+
+
+func Bytes2Ints(data []byte) []int {
+	int_arr := []int{}
+	arr_len := len(data) / 4
+	cur_start := 0
+
+	for i := 1; i <= arr_len; i++ {
+	    	b0 := int(data[cur_start])
+		b1 := int(data[cur_start + 1]) << 8
+		b2 := int(data[cur_start + 2]) << 16
+		b3 := int(data[cur_start + 3]) << 24
+
+		int_arr = append(int_arr, b0 + b1 + b2 + b3)
+		cur_start += 4
+	}
+
+	return int_arr
+}
+
+
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,
 	fs asmfiddle.FileSystem, console asmfiddle.Console, leds asmfiddle.LEDBank,
