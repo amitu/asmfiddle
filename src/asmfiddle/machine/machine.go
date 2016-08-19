@@ -52,6 +52,45 @@
 //            1: pin 1
 //            ...
 //
+// 2480 Ethernet:
+//        0: control
+//           0: on | off
+//        2484: mac address
+//        2492: Buffer Out: WO
+//
+// 2496 IPNet: will store IP address on Ctrl + 1, Ctrl + 2 buffer out, which is IP packet
+//        0: control
+//        2500: IP address
+//        2504: out buffer
+//
+// 2508: TCPNet:
+// 		  0: control
+//               0: on | off
+//               1: client | server
+//               2: domain | IP
+//               3: port ready
+//               4: new connection
+//               5: error
+// 				16-32 will store Port at Control (lower 16 bits)
+//                      read returns actual port
+//                      write is illegal
+//        2512: remote ip
+//        2512: On buffer: buffer size | remote ip | remote port | local ip | local port | data
+//
+// 2516: HTTPNet:
+//      0: control
+//         0: on | off
+//         1: client | server
+//         2: domain | ip
+//      +1: remote ip
+// 		2520: out Buffer
+//
+// DNSNet:
+//          0: control
+//               0: start dns lookup
+//          +1: address of null terminated domain name
+//          +2: ip address after resolution
+
 // 3000: Interrupt: invalid memory access
 // 3004: Interrupt: Keyboard Interrupt
 // 3008: Interrupt: mouse
@@ -64,8 +103,12 @@
 // 3036: user defined int 2
 // 3040: user defined int3
 // 3044: pin interrupt
+// 3048: net* in interrupt
+// 3052: net* out interrupt
+// 3056: dns resolved interrupt
 //
-// 4000: main program start
+// 4000: 4kb Net* In
+// 8000: main program start
 package machine
 
 import (
