@@ -26,3 +26,6 @@ _testmain.go
 vendor/src/github.com/gopherjs/gopherjs
 scss/foundation-sites
 .doit.db
+src/github.com
+src/golang.org
+bin

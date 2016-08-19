@@ -21,7 +21,7 @@ def task_gtests():
         "actions": [
             "go test -v -race -timeout 1s asmfiddle/...",
             "go vet asmfiddle/...",
-            "./bin/errcheck -asserts -blank asmfiddle/...",
+            "./bin/errcheck -asserts asmfiddle/...",
         ],
         "file_dep": ALL_FILES,
     }
@@ -51,7 +51,7 @@ def task_css():
 def task_js():
     return {
         "actions": [
-            "gopherjs build asmfiddle/cmd/script",
+            "gopherjs build -m asmfiddle/cmd/script",
             "mkdir -p build",
             "mv script.js script.js.map build",
         ],
