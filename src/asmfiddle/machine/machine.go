@@ -120,6 +120,27 @@ import (
 
 type ram []int
 
+func (r ram) Set(pos, val int) {
+	// where are our peripherals?
+	// keyboard: 1000
+	//      on off | int address | context
+	//Set(1000, 1) // activate keyboard
+	//Set(1004, 1) // use interrupt 1 for keyboard events
+	//Set(1008, 1)
+
+	// mouse 1020
+	//       on off | int address | context
+	//Set(1020, 1) // activate mouse
+	//Set(1024, 2) // use interrupt 1 for mouse events
+	//Set(1028, 2)
+	// how many interrupts?
+}
+
+func (r ram) Get(int) int {
+	return 0
+}
+
+
 func (c *cpu) Set(loc, val int) {
 	if loc%4 != 0 {
 		// set some flag to indicate what has happened
@@ -164,6 +185,7 @@ func (c *cpu) Get(loc int) int {
 
 	return c.special[loc]
 }
+
 
 type cpu struct {
 	keyboard asmfiddle.Keyboard
@@ -305,6 +327,12 @@ func (r *registers) Set(i, val int) {
 	r.data[i] = val
 }
 
+type stack struct {
+	sp    int
+	stack []int
+}
+
+
 func (c *cpu) Push(val int) {
 	c.stack[c.registers.data[0]] = val
 	c.registers.data[0] += 1
@@ -314,6 +342,49 @@ func (c *cpu) Pop() int {
 	c.registers.data[0] -= 1
 	return c.stack[c.registers.data[0]]
 }
+
+func (s *stack) Push(val int) {
+	s.stack = append(s.stack, val)
+	s.sp += 1
+}
+
+func (s *stack) Pop() int {
+	return s.stack[s.sp]
+}
+
+
+// Utilities
+func Int2Bytes(int_val []int) []byte {
+	data := make([]byte, 0)
+	for _, int_val := range int_val {
+		b0 := byte(int_val & 0xFFF);
+		b1 := byte(int_val >> 8 & 0xFFF)
+		b2 := byte(int_val >> 16 & 0xFFF)
+		b3 := byte(int_val >> 24 & 0xFFF)
+		data = append(data, b0, b1, b2, b3)
+	}
+	return data
+}
+
+
+func Bytes2Ints(data []byte) []int {
+	int_arr := []int{}
+	arr_len := len(data) / 4
+	cur_start := 0
+
+	for i := 1; i <= arr_len; i++ {
+	    	b0 := int(data[cur_start])
+		b1 := int(data[cur_start + 1]) << 8
+		b2 := int(data[cur_start + 2]) << 16
+		b3 := int(data[cur_start + 3]) << 24
+
+		int_arr = append(int_arr, b0 + b1 + b2 + b3)
+		cur_start += 4
+	}
+
+	return int_arr
+}
+
 
 func NewCPU(
 	keyboard asmfiddle.Keyboard, mouse asmfiddle.Mouse, lcd asmfiddle.LCD,

@@ -5,6 +5,55 @@ import (
 	"testing"
 )
 
+func TestBytes2Ints(t *testing.T) {
+	sample_int_data := []int{266, 2000, 2312}
+	byte_data := Int2Bytes(sample_int_data)
+	int_data := Bytes2Ints(byte_data)
+
+	if len(sample_int_data) != len(int_data) {
+		t.Fatal("Test failed")
+	}
+
+	for index, _ := range sample_int_data {
+		if sample_int_data[index] != int_data[index] {
+			t.Fatal("Test failed")
+		}
+	}
+}
+
+func TestInt2Bytes(t *testing.T) {
+	sample_byte_data := []byte{10, 1, 0, 0, 208, 7, 0, 0, 8, 9, 0, 0}
+	int_data := Bytes2Ints(sample_byte_data)
+	byte_data := Int2Bytes(int_data)
+
+	if len(sample_byte_data) != len(byte_data) {
+		t.Fatal("Test failed")
+	}
+
+	for index, _ := range sample_byte_data {
+		if sample_byte_data[index] != byte_data[index] {
+			t.Fatal("Test failed")
+		}
+	}
+}
+
+func TestCpu_Run(t *testing.T) {
+	// fs := NewFakeFS(map[string][]byte{"000000.bin": asmfiddle.Int2Bytes([]int{int(OpMovRI), 4, 42, int(OpHalt)}))
+	cpum := NewCPU(nil, nil, nil, nil, nil, nil, nil, 20, 0)
+	c, ok := cpum.(*cpu)
+	if !ok {
+		t.Fatal("invalid")
+	}
+
+	c.ram = ram([]int{int(OpMovRI), 4, 42, int(OpHalt)})
+	c.Run()
+
+	if c.registers.data[4] != 42 {
+		t.Fatal("test failed")
+	}
+}
+
+
 type FakeConsole struct {
 	last string
 }

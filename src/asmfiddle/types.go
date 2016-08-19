@@ -12,10 +12,14 @@ type Folder interface {
 	Folders() map[string]Folder
 }
 
-// FileSystem is for storing all files that user is editing
-type FileSystem interface {
+type ROFileSystem interface {
 	Root() Folder
 	ReadFile(string) ([]byte, error)
+}
+
+// FileSystem is for storing all files that user is editing
+type FileSystem interface {
+	ROFileSystem
 	SaveFile(name string, content []byte) error
 	DeleteFile(string) error
 	DeleteFolder(string) error
